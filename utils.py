@@ -4,7 +4,7 @@ import numpy as np
 
 emb_alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789-,;.!?: '
 ALPHABET_SIZE = len(emb_alphabet)
-# we associate every character in our alphabet to a number:
+# associate each character in our alphabet to a number:
 CHAR_DICT = {ch: ix for ix, ch in enumerate(emb_alphabet)}
 
 class BatchLoader(object):
