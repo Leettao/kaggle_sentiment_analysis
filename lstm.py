@@ -1,44 +1,12 @@
-# This Python 3 environment comes with many helpful analytics libraries installed
-# It is defined by the kaggle/python docker image: https://github.com/kaggle/docker-python
-# For example, here's several helpful packages to load in
+# CHARACTER-LEVEL ATTENTION MODEL
 
-import numpy as np # linear algebra
-import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+import pandas as pd
 from utils import *
-from subprocess import check_output
-print(check_output(["ls", "./data"]).decode("utf8"))
-
-# Any results you write to the current directory are saved as output.
 
 import keras
 from keras.models import Model
 from keras.layers import *
-from keras.preprocessing import text, sequence
 from keras.callbacks import EarlyStopping, ModelCheckpoint
-
-
-
-#
-# train = pd.read_csv("./data/train.csv")
-# test = pd.read_csv("./data/test.csv")
-# train = train.sample(frac=1)
-#
-# list_sentences_train = train["comment_text"].fillna("CVxTz").values
-# list_classes = ["toxic", "severe_toxic", "obscene", "threat", "insult", "identity_hate"]
-# y = train[list_classes].values
-# list_sentences_test = test["comment_text"].fillna("CVxTz").values
-
-
-# X_t = embed_comment_onehot(list(list_sentences_train),maxlen)
-# X_te = embed_comment_onehot(list(list_sentences_train),maxlen)
-
-# tokenizer = text.Tokenizer(char_level=True,
-#                            filters = '%&()*+,-./:;<=>@[\\]^_`{|}~\t\n',)
-# tokenizer.fit_on_texts(list(list_sentences_train))
-# list_tokenized_train = tokenizer.texts_to_sequences(list_sentences_train)
-# list_tokenized_test = tokenizer.texts_to_sequences(list_sentences_test)
-# X_t = sequence.pad_sequences(list_tokenized_train, maxlen=maxlen)
-# X_te = sequence.pad_sequences(list_tokenized_test, maxlen=maxlen)
 
 print("STARTING....")
 list_classes = ["toxic", "severe_toxic", "obscene", "threat", "insult", "identity_hate"]
