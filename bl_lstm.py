@@ -22,20 +22,6 @@ list_classes = ["toxic", "severe_toxic", "obscene", "threat", "insult", "identit
 y = train[list_classes].values
 list_sentences_test = test["comment_text"].fillna("CVxTz").values
 
-# clean up data
-emb_alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWYXZ0123456789-,;.!?: '
-def clean_up(data):
-    print("cleaning data...")
-    for i in range(len(data)):
-        data[i] = data[i].replace("\n", " ")
-        for char in data[i]:
-            if char not in emb_alphabet:
-                data[i] = data[i].replace(char,"")
-        return data
-
-list_sentences_train = clean_up(list_sentences_train)
-list_sentences_test = clean_up(list_sentences_test)
-
 tokenizer = text.Tokenizer(num_words=max_features)
 tokenizer.fit_on_texts(list(list_sentences_train))
 list_tokenized_train = tokenizer.texts_to_sequences(list_sentences_train)
