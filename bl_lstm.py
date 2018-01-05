@@ -11,27 +11,30 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 
 max_features = 20000
 maxlen = 1000
-embed_size = 256
+embed_size = 128
 
 train = pd.read_csv("./data/train.csv")
 test = pd.read_csv("./data/test.csv")
 train = train.sample(frac=1)
 
-list_sentences_train = train["comment_text"].fillna("CVxTz").values
+list_sentences_train = train["comment_text"].fillna("_na_").values
 list_classes = ["toxic", "severe_toxic", "obscene", "threat", "insult", "identity_hate"]
 y = train[list_classes].values
-list_sentences_test = test["comment_text"].fillna("CVxTz").values
+list_sentences_test = test["comment_text"].fillna("_na_").values
 
 # clean up data
-emb_alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWYXZ0123456789-,;.!?: '
+emb_alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWYXZ0123456789-,;.!?:" '
 def clean_up(data):
     print("cleaning data...")
     for i in range(len(data)):
         data[i] = data[i].replace("\n", " ")
-        for char in data[i]:
+        data[i] = data[i][:maxlen]
+        for j,char in enumerate(data[i]):
+
             if char not in emb_alphabet:
                 data[i] = data[i].replace(char,"")
-        return data
+
+    return data
 
 list_sentences_train = clean_up(list_sentences_train)
 list_sentences_test = clean_up(list_sentences_test)
@@ -47,11 +50,11 @@ def LSTM_Model():
     inp = Input(shape=(maxlen, ))
     x = Embedding(max_features, embed_size)(inp)
     x = BatchNormalization()(x)
-    x = Bidirectional(CuDNNLSTM(150, return_sequences=True))(x)
+    x = Bidirectional(LSTM(50, return_sequences=True, dropout=0.1, recurrent_dropout=0.1))(x)
     x = GlobalMaxPool1D()(x)
-    x = Dropout(0.2)(x)
-    x = Dense(100, activation="relu")(x)
-    x = Dropout(0.2)(x)
+    x = Dropout(0.1)(x)
+    x = Dense(50, activation="relu")(x)
+    x = Dropout(0.1)(x)
     x = Dense(6, activation="sigmoid")(x)
     model = Model(inputs=inp, outputs=x)
     model.compile(loss='binary_crossentropy',
@@ -63,8 +66,9 @@ def LSTM_Model():
 
 model = LSTM_Model()
 batch_size = 256
-epochs = 500
+epochs = 4
 file_path="weights_base.best.hdf5"
+
 
 print("FITTING...")
 checkpoint = ModelCheckpoint(file_path, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
