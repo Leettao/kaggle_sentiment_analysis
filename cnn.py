@@ -57,8 +57,8 @@ def multi_conv_concat(x,widths,num_filters):
             out = concatenate([out, cur_out])
     return out
 
-widths =      [2, 4, 8, 16,32,64,128]
-num_filters = [100,50,50,50,20,20,5]
+widths =      [2,4,8,16,32,64]
+num_filters = [64,32,16,8,4,2]
 
 def CNN_Model():
     inp = Input(shape=(maxlen, ))
@@ -82,7 +82,7 @@ def CNN_Model():
 
 
 model = CNN_Model()
-batch_size = 128
+batch_size = 64
 epochs = 4
 file_path="weights_base.best.hdf5"
 
