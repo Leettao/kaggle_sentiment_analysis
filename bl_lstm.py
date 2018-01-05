@@ -10,7 +10,7 @@ from keras.preprocessing import text, sequence
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 
 max_features = 20000
-maxlen = 1000
+maxlen = 1500
 embed_size = 128
 
 train = pd.read_csv("./data/train.csv")
@@ -50,7 +50,7 @@ def LSTM_Model():
     inp = Input(shape=(maxlen, ))
     x = Embedding(max_features, embed_size)(inp)
     x = BatchNormalization()(x)
-    x = Bidirectional(LSTM(50, return_sequences=True, dropout=0.1, recurrent_dropout=0.1))(x)
+    x = Bidirectional(CuDNNLSTM(50, return_sequences=True))(x)
     x = GlobalMaxPool1D()(x)
     x = Dropout(0.1)(x)
     x = Dense(50, activation="relu")(x)
@@ -65,8 +65,8 @@ def LSTM_Model():
 
 
 model = LSTM_Model()
-batch_size = 256
-epochs = 4
+batch_size = 400
+epochs = 3
 file_path="weights_base.best.hdf5"
 
 
@@ -78,12 +78,7 @@ model.fit(X_t, y, batch_size=batch_size, epochs=epochs, validation_split=0.1, ca
 
 print("TESTING...")
 model.load_weights(file_path)
-y_test = model.predict(X_te)
-print(y_test.shape)
-
+y_test = model.predict(X_te, verbose=1, batch_size=batch_size)
 sample_submission = pd.read_csv("./data/sample_submission.csv")
 sample_submission[list_classes] = y_test
-
-
-
 sample_submission.to_csv("baseline.csv", index=False)
