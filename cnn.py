@@ -1,4 +1,4 @@
-# BASELINE LSTM
+# BASELINE CNN
 import pandas as pd
 from subprocess import check_output
 print(check_output(["ls", "./data"]).decode("utf8"))
@@ -46,14 +46,32 @@ list_tokenized_test = tokenizer.texts_to_sequences(list_sentences_test)
 X_t = sequence.pad_sequences(list_tokenized_train, maxlen=maxlen)
 X_te = sequence.pad_sequences(list_tokenized_test, maxlen=maxlen)
 
-def LSTM_Model():
+def multi_conv_concat(x,widths,num_filters):
+    out = None
+    for i in range(len(widths)):
+        cur_out = Conv2D(num_filters[i], (widths[i], embed_size), padding="same")(x)
+        cur_out = MaxPooling2D(pool_size=(2,1))(cur_out)
+        if i == 0:
+            out = cur_out
+        else:
+            out = concatenate([out, cur_out])
+    return out
+
+widths =      [2, 4, 8, 16,32,64,128]
+num_filters = [100,50,50,50,20,20,5]
+
+def CNN_Model():
     inp = Input(shape=(maxlen, ))
     x = Embedding(max_features, embed_size)(inp)
-    x = Bidirectional(CuDNNLSTM(50, return_sequences=True))(x)
-    x = GlobalMaxPool1D()(x)
-    x = Dropout(0.2)(x)
+    x = Reshape( (maxlen,embed_size,1) )(x)
+    x = Lambda(multi_conv_concat, arguments={'widths':widths,'num_filters':num_filters})(x)
+    # x = Reshape( (int(x.shape[1]),int(x.shape[2]*x.shape[3]) ) )(x)
+    # x = Bidirectional(CuDNNLSTM(50, return_sequences=True))(x)
+    # x = GlobalMaxPool1D()(x)
+    x = Flatten()(x)
+    x = Dropout(0.1)(x)
     x = Dense(50, activation="relu")(x)
-    x = Dropout(0.2)(x)
+    x = Dropout(0.1)(x)
     x = Dense(6, activation="sigmoid")(x)
     model = Model(inputs=inp, outputs=x)
     model.compile(loss='binary_crossentropy',
@@ -63,9 +81,9 @@ def LSTM_Model():
     return model
 
 
-model = LSTM_Model()
+model = CNN_Model()
 batch_size = 128
-epochs = 5
+epochs = 4
 file_path="weights_base.best.hdf5"
 
 
