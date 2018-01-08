@@ -46,6 +46,11 @@ list_tokenized_test = tokenizer.texts_to_sequences(list_sentences_test)
 X_t = sequence.pad_sequences(list_tokenized_train, maxlen=maxlen)
 X_te = sequence.pad_sequences(list_tokenized_test, maxlen=maxlen)
 
+
+# 2d convolution filters are applied to the embeded data such that they can
+# select or attend to various parts of a sentence sequence. Various widths
+# are used in order to allow for different sized character sequences (e.g word, phrases)
+# to be selected for. These activations are then appended together to create the output.
 def multi_conv_concat(x,widths,num_filters):
     out = None
     for i in range(len(widths)):
