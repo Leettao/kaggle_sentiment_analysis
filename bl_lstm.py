@@ -46,12 +46,14 @@ list_tokenized_test = tokenizer.texts_to_sequences(list_sentences_test)
 X_t = sequence.pad_sequences(list_tokenized_train, maxlen=maxlen)
 X_te = sequence.pad_sequences(list_tokenized_test, maxlen=maxlen)
 
+# this is the baseline LSTM model
+
 # create model
 def LSTM_Model():
     inp = Input(shape=(maxlen, ))
     x = Embedding(max_features, embed_size)(inp)
     x = Bidirectional(LSTM(50, return_sequences=True, dropout=0.1, recurrent_dropout=0.1))(x)
-    #x = Bidirectional(CuDNNLSTM(50, return_sequences=True))(x)
+    #x = Bidirectional(CuDNNLSTM(50, return_sequences=True))(x) # if training on gpu, sub for line above
     x = GlobalMaxPool1D()(x)
     x = Dropout(0.1)(x)
     x = Dense(50, activation="relu")(x)
