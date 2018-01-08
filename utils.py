@@ -7,6 +7,11 @@ ALPHABET_SIZE = len(emb_alphabet)
 # associate each character in our alphabet to a number:
 CHAR_DICT = {ch: ix for ix, ch in enumerate(emb_alphabet)}
 
+# This is used to sample the data add feed batches to the keras model
+# this is only necessary when the data is represented as one hot vectors
+# in the alphabet space. This is because the entire data set cannot
+# be stored in RAM with such a sparse representation
+
 class BatchLoader(object):
 
 
@@ -35,6 +40,7 @@ class BatchLoader(object):
         self.test_data = data
 
 
+    # read from the csv file and returns a dictionary of the X and Y values
     def read_csv_data(self):
 
         csv.field_size_limit(sys.maxsize)
@@ -66,6 +72,7 @@ class BatchLoader(object):
             return dict
 
 
+    # embed the comments as a one vector in the alphabet space
     def embed_comment_onehot(self, comments):
 
         truncate_len = self.truncate_len
@@ -88,6 +95,8 @@ class BatchLoader(object):
 
         return embedding
 
+    # embed the comments as a tokenized numbers where each numbder corresponds to a
+    # letter of the alphabet
     def embed_comment_alphdict(self, comments):
 
         truncate_len = self.truncate_len
@@ -110,13 +119,14 @@ class BatchLoader(object):
 
         return embedding
 
+    # takes the data in dict form and shuffels
     def shuffle_train_data(self):
         random_mask = np.random.permutation(self.train_data['X'].shape[0])
         self.train_data['X'] = self.train_data['X'][random_mask]
         self.train_data['Y'] = self.train_data['Y'][random_mask]
 
 
-
+    # iterator method for train set
     def iterate_minibatch_train(self, batch_size):
         i = 0
         self.shuffle_train_data()
@@ -138,6 +148,7 @@ class BatchLoader(object):
 
             yield x_batch, y_batch
 
+    # iterator method for validation set
     def iterate_minibatch_val(self, batch_size):
         i = 0
 
@@ -156,6 +167,7 @@ class BatchLoader(object):
                 i += batch_size
             yield x_batch, y_batch
 
+    # iterator method for test set
     def iterate_minibatch_test(self, batch_size):
         i = 0
         print("called test")
